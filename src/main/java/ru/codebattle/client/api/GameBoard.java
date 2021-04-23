@@ -210,7 +210,7 @@ public class GameBoard {
         return getPortals().contains(point);
     }
 
-    public boolean  hasBarrierAt(BoardPoint point){
+    public boolean hasBarrierAt(BoardPoint point){
         return getBarriers().contains(point);
     }
 
@@ -257,5 +257,24 @@ public class GameBoard {
 
     private int boolToInt(boolean bool) {
         return bool ? 1 : 0;
+    }
+
+    // Novie funkcii
+
+    public boolean[][] getBooleanArray() {
+        int size = size();
+        boolean[][] result = new boolean[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                BoardPoint boardPoint = new BoardPoint(i,j);
+                result[i][j] = hasPipeAt(boardPoint.shiftTop())
+                        || hasWallAt(boardPoint.shiftBottom())
+                        || hasLadderAt(boardPoint)
+                        || hasBarrierAt(boardPoint.shiftBottom());
+            }
+        }
+
+        return result;
     }
 }
