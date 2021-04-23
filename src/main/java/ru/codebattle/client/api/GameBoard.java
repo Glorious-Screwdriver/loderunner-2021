@@ -261,17 +261,21 @@ public class GameBoard {
 
     // Novie funkcii
 
-    public boolean[][] getBooleanArray() {
+    public int[][] getWeightArray() {
         int size = size();
-        boolean[][] result = new boolean[size][size];
+        int[][] result = new int[size][size];
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                BoardPoint boardPoint = new BoardPoint(i,j);
-                result[i][j] = hasPipeAt(boardPoint.shiftTop())
-                        || hasWallAt(boardPoint.shiftBottom())
-                        || hasLadderAt(boardPoint)
-                        || hasBarrierAt(boardPoint.shiftBottom());
+                if(i==0||j==0||j==size-1||i==size-1){
+                    result[i][j]=-1;
+                }else {
+                    BoardElement bottomElement = getElementAt(new BoardPoint(i, j - 1));
+                    BoardElement Element = getElementAt(new BoardPoint(i, j));
+                    result[i][j] = bottomElement.equals(BoardElement.BRICK) ||
+                            bottomElement.equals(BoardElement.UNDESTROYABLE_WALL) ||
+                            Element.equals(BoardElement.LADDER) ? 0 : -1;
+                }
             }
         }
 

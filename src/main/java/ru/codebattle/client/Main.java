@@ -5,8 +5,8 @@ import ru.codebattle.client.api.GameBoard;
 import ru.codebattle.client.api.LoderunnerAction;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
+
+import java.util.List;
 
 public class Main {
     private static final String SERVER_ADDRESS = "https://dojorena.io/codenjoy-contest/board/player/dojorena378?code=6192664095630323037";
@@ -22,9 +22,34 @@ public class Main {
 
     private static LoderunnerAction doAction(GameBoard gameBoard) {
         boardSize = gameBoard.size();
-        PathFinding pathFinding =new PathFinding(gameBoard.getBooleanArray());
-        pathFinding.findPath(gameBoard.getMyPosition(),gameBoard.getMyPosition().shiftRight());
-        return LoderunnerAction.SUICIDE;
+        BoardPoint position = gameBoard.getMyPosition();
+        int[][] weightArray = gameBoard.getWeightArray();
+        AStar astar= new AStar(weightArray, position.getX(), position.getY(), false);
+        List<AStar.Node> path = astar.findPathTo(20,20);
+//        if (path != null) {
+//            path.forEach((n) -> {
+//                System.out.print("[" + n.x + ", " + n.y + "] ");
+//                weightArray[n.y][n.x] = -1;
+//            });
+//            System.out.printf("\nTotal cost: %.02f\n", path.get(path.size() - 1).g);
+//
+//            for (int[] maze_row : weightArray) {
+//                for (int maze_entry : maze_row) {
+//                    switch (maze_entry) {
+//                        case 0:
+//                            System.out.print("_");
+//                            break;
+//                        case -1:
+//                            System.out.print("*");
+//                            break;
+//                        default:
+//                            System.out.print("#");
+//                    }
+//                }
+//                System.out.println();
+//            }
+//        }
+        return LoderunnerAction.DO_NOTHING;
     }
 }
 

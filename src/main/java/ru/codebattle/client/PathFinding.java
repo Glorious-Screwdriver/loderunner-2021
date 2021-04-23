@@ -31,25 +31,30 @@ public class PathFinding {
         openSet.add(startNode);
 
         while (!openSet.isEmpty()) {
+
             Node currentNode = openSet.get(0);
+
             for (Node node : openSet) {
                 if (node.fCost() < currentNode.fCost() || node.fCost() == currentNode.fCost() && node.hCost < currentNode.hCost) {
                     currentNode = node;
                 }
             }
+
             openSet.remove(currentNode);
             closedSet.add(currentNode);
 
             if (currentNode.equals(endNode)) {
-                startNode.retracePath(startNode);
+                startNode.retracePath(endNode);
             }
             for (Node neighbour : getNeighbours(currentNode)) {
-                if (!neighbour.walkable || closedSet.contains(neighbour)) {
-                    continue;
+                if (neighbour.equals(endNode)) {
+                    startNode.retracePath(endNode);
                 }
+                if (!neighbour.walkable || closedSet.contains(neighbour)) continue;
 
                 int newCost = currentNode.gCost + currentNode.getDistanceTo(neighbour);
-                if (newCost < neighbour.gCost || openSet.contains(neighbour)) {
+                if (newCost < neighbour.gCost || !openSet.contains(neighbour)) {
+
                     neighbour.gCost = newCost;
                     neighbour.hCost = neighbour.getDistanceTo(endNode);
                     neighbour.parent = currentNode;
@@ -61,7 +66,6 @@ public class PathFinding {
             }
         }
     }
-
     private static class Node {
         public final BoardPoint pos;
         private final boolean walkable;
@@ -82,11 +86,7 @@ public class PathFinding {
         public int getDistanceTo(Node node) {
             int distX = Math.abs(node.pos.getX() - pos.getX());
             int distY = Math.abs(node.pos.getY() - pos.getY());
-            if (distY > distX) {
-                return 14 * distX + 10 * (distY - distX);
-            } else {
-                return 14 * distY + 10 * (distX - distY);
-            }
+            return distX+distY;
         }
         public void retracePath(Node end) {
             ArrayList<Node> path = new ArrayList<>();
@@ -106,20 +106,18 @@ public class PathFinding {
             return this.pos.equals(node.pos);
         }
     }
-
     private ArrayList<Node> getNeighbours(Node node) {
         ArrayList<Node> list = new ArrayList<>();
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) {
-                    continue;
+                if (i == 0 && j == 0) continue;
+
+                int x = node.pos.getX() + i, y = node.pos.getY() + j;
+
+                if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
+                    list.add(grid[x][y]);
                 }
 
-                BoardPoint boardPoint = new BoardPoint(node.pos.getX() + i, node.pos.getY() + j);
-
-                if (boardPoint.getX() >= 0 && boardPoint.getX() < gridSize && boardPoint.getY() >= 0 && boardPoint.getY() < gridSize) {
-                    list.add(grid[boardPoint.getX()][boardPoint.getY()]);
-                }
             }
         }
         return list;
