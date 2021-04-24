@@ -35,7 +35,7 @@ public class AStar {
      * @param yend y coordinate of the target position
      * @return (List<Node> | null) the path
      */
-    private List<Node> findPathTo(int xend, int yend) {
+    public List<Node> findPathTo(int xend, int yend) {
         this.xend = xend;
         this.yend = yend;
         this.closed.add(this.now);
