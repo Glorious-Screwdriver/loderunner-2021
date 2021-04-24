@@ -10,9 +10,12 @@ public class GameBoard {
 
     @Getter
     private final String boardString;
+    private boolean underPills;
+    private BoardPoint myPosition;
 
     public GameBoard(String boardString) {
         this.boardString = boardString.replace("\n", "");
+        this.myPosition = getMyPosition(true);
     }
 
     public int size() {
@@ -20,26 +23,42 @@ public class GameBoard {
     }
 
     public BoardPoint getMyPosition() {
-        List<BoardPoint> result = findAllElements(BoardElement.HERO_DIE);
-        result.addAll(findAllElements(BoardElement.HERO_DRILL_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_DRILL_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_FALL_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_FALL_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_LADDER));
-        result.addAll(findAllElements(BoardElement.HERO_PIPE_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_PIPE_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_DRILL_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_DRILL_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_LADDER));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_FALL_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_FALL_RIGHT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_PIPE_LEFT));
-        result.addAll(findAllElements(BoardElement.HERO_SHADOW_PIPE_RIGHT));
-        return result.get(0);
+        return myPosition;
+    }
+
+    public BoardPoint getMyPosition(boolean calculate) {
+        for (int i = 0; i < size() * size(); i++) {
+            BoardPoint pt = getPointByShift(i);
+            BoardElement el = getElementAt(pt);
+            List<BoardElement> normal = Arrays.asList(
+                    BoardElement.HERO_DIE,
+                    BoardElement.HERO_DRILL_LEFT,
+                    BoardElement.HERO_DRILL_RIGHT,
+                    BoardElement.HERO_FALL_LEFT,
+                    BoardElement.HERO_FALL_RIGHT,
+                    BoardElement.HERO_LADDER,
+                    BoardElement.HERO_PIPE_LEFT,
+                    BoardElement.HERO_PIPE_RIGHT,
+                    BoardElement.HERO_LEFT,
+                    BoardElement.HERO_RIGHT
+            );
+            List<BoardElement> shadow = Arrays.asList(
+                    BoardElement.HERO_SHADOW_DRILL_LEFT,
+                    BoardElement.HERO_SHADOW_DRILL_RIGHT,
+                    BoardElement.HERO_SHADOW_LADDER,
+                    BoardElement.HERO_SHADOW_LEFT,
+                    BoardElement.HERO_SHADOW_RIGHT,
+                    BoardElement.HERO_SHADOW_FALL_LEFT,
+                    BoardElement.HERO_SHADOW_FALL_RIGHT,
+                    BoardElement.HERO_SHADOW_PIPE_LEFT,
+                    BoardElement.HERO_SHADOW_PIPE_RIGHT
+            );
+            underPills = multiCheck(shadow, getElementAt(pt));
+            if (multiCheck(normal, getElementAt(pt)) || underPills) {
+                return pt;
+            }
+        }
+        return new BoardPoint(-1, -1);
     }
 
     public boolean isGameOver() {
@@ -179,11 +198,39 @@ public class GameBoard {
     }
 
     public boolean hasEnemyAt(BoardPoint point) {
-        return getEnemyPositions().contains(point);
+        BoardElement element = getElementAt(point);
+        List<BoardElement> boardElements = Arrays.asList(
+                BoardElement.ENEMY_RIGHT,
+                BoardElement.ENEMY_LEFT,
+                BoardElement.ENEMY_LADDER,
+                BoardElement.ENEMY_PIPE_LEFT,
+                BoardElement.ENEMY_PIPE_RIGHT,
+                BoardElement.ENEMY_PIT
+        );
+        return multiCheck(boardElements, element);
     }
 
-    public boolean hasOtherHeroAt(BoardPoint point) {
-        return getOtherHeroPositions().contains(point);
+    public boolean hasOtherHeroAt(BoardPoint point, boolean needShadow) {
+        BoardElement element = getElementAt(point);
+        return element.equals(BoardElement.OTHER_HERO_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_LADDER) ||
+                element.equals(BoardElement.OTHER_HERO_PIPE_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_PIPE_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_DRILL_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_DRILL_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_FALL_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_FALL_RIGHT) ||
+
+                needShadow && (element.equals(BoardElement.OTHER_HERO_SHADOW_LEFT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_RIGHT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_LADDER) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_PIPE_LEFT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_PIPE_RIGHT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_DRILL_LEFT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_DRILL_RIGHT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_FALL_LEFT) ||
+                        element.equals(BoardElement.OTHER_HERO_SHADOW_FALL_RIGHT));
     }
 
     public boolean hasWallAt(BoardPoint point) {
@@ -195,7 +242,10 @@ public class GameBoard {
     }
 
     public boolean hasGoldAt(BoardPoint point) {
-        return getGoldPositions().contains(point);
+        BoardElement element = getElementAt(point);
+        return element.equals(BoardElement.GREEN_GOLD) ||
+                element.equals(BoardElement.YELLOW_GOLD) ||
+                element.equals(BoardElement.RED_GOLD);
     }
 
     public boolean hasPipeAt(BoardPoint point) {
@@ -259,7 +309,8 @@ public class GameBoard {
         return bool ? 1 : 0;
     }
 
-    // Novie funkcii
+
+    // Новый функционал
 
     public int[][] getWeightArray() {
         int size = size();
@@ -270,27 +321,53 @@ public class GameBoard {
                 if (i == 0 || j == 0 || j == size - 1 || i == size - 1) {
                     result[j][i] = -1;
                 } else {
-                    BoardElement bottomElement = getElementAt(new BoardPoint(i, j).shiftBottom());
-                    BoardElement Element = getElementAt(new BoardPoint(i, j));
+                    boolean above = j < myPosition.getY();
+                BoardPoint boardPoint = new BoardPoint(i, j);
+                BoardElement element = getElementAt(boardPoint);
 
-                    result[j][i] = (bottomElement.equals(BoardElement.BRICK) ||
-                            bottomElement.equals(BoardElement.UNDESTROYABLE_WALL) ||
-                            Element.equals(BoardElement.LADDER) ||
-                            Element.equals(BoardElement.PIPE) ||
-                            Element.equals(BoardElement.HERO_PIPE_LEFT) ||
-                            Element.equals(BoardElement.HERO_PIPE_RIGHT) ||
-                            bottomElement.equals(BoardElement.LADDER) ||
-                            bottomElement.equals(BoardElement.HERO_LADDER)) &&
-                            !(Element.equals(BoardElement.UNDESTROYABLE_WALL) ||
-                                    Element.equals(BoardElement.BRICK) ||
-                                    Element.equals(BoardElement.OTHER_HERO_LEFT) ||
-                                    Element.equals(BoardElement.OTHER_HERO_RIGHT) ||
-                                    Element.equals(BoardElement.ENEMY_LEFT) ||
-                                    Element.equals(BoardElement.ENEMY_RIGHT)) ? 0 : -1;
-                }
+                List<BoardElement> walkable = Arrays.asList(
+                        BoardElement.LADDER,
+                        BoardElement.PIPE,
+                        BoardElement.HERO_PIPE_LEFT,
+                        BoardElement.HERO_PIPE_RIGHT
+                );
+                List<BoardElement> avoid = Arrays.asList(
+                        BoardElement.UNDESTROYABLE_WALL,
+                        BoardElement.BRICK,
+                        BoardElement.PORTAL
+                );
+                boolean hasFloor = hasFloor(boardPoint);
+                boolean isWalkable = multiCheck(walkable, element);
+
+                result[j][i] = (above && hasFloor||(!above)&&(isWalkable||hasFloor)) &&
+                        !(multiCheck(avoid, element) || (!underPills) && (hasEnemyAt(boardPoint) ||
+                                hasOtherHeroAt(boardPoint, true))) ? 0 : -1;
+
+//                    if (element.equals(BoardElement.SHADOW_PILL) || hasGoldAt(boardPoint)) {
+//                        result[j][i] = 0;
+//                    }
             }
         }
+    }
 
         return result;
+}
+
+    private boolean hasFloor(BoardPoint point) {
+        BoardPoint pointBeneath = point.shiftBottom();
+        BoardElement elementBeneath = getElementAt(pointBeneath);
+        return elementBeneath.equals(BoardElement.BRICK) ||
+                elementBeneath.equals(BoardElement.UNDESTROYABLE_WALL) ||
+                elementBeneath.equals(BoardElement.LADDER) ||
+                elementBeneath.equals(BoardElement.HERO_LADDER) ||
+                hasEnemyAt(pointBeneath) ||
+                hasOtherHeroAt(pointBeneath, false);
+    }
+
+    private boolean multiCheck(List<BoardElement> list, BoardElement element) {
+        for (BoardElement boardElement : list) {
+            if (boardElement.equals(element)) return true;
+        }
+        return false;
     }
 }

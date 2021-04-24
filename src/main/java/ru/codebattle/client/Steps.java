@@ -17,7 +17,7 @@ public class Steps {
 
     public Steps(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
-
+        size=gameBoard.size();
         position = gameBoard.getMyPosition();
         weightArray = gameBoard.getWeightArray();
     }
@@ -33,7 +33,7 @@ public class Steps {
     public Optional<LoderunnerAction> findGold() {
         LoderunnerAction action;
         AStar astar = new AStar(weightArray, position.getX(), position.getY(), false);
-        int minDistance = 300;
+        int minDistance = size;
         List<AStar.Node> path = astar.findPathTo(position.getX() + 1, position.getY());
 
         for (BoardPoint gold : gameBoard.getGoldPositions()) {
@@ -42,7 +42,7 @@ public class Steps {
                     gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.LADDER)) {
                 astar = new AStar(weightArray, position.getX(), position.getY(), false);
                 List<AStar.Node> tmp = astar.findPathTo(gold.getX(), gold.getY());
-                int distance = 300;
+                int distance = size*2;
                 if (tmp != null) {
                     distance = tmp.size();
                 }

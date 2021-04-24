@@ -1,14 +1,11 @@
 package ru.codebattle.client;
 
-import ru.codebattle.client.api.BoardElement;
-import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.GameBoard;
 import ru.codebattle.client.api.LoderunnerAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 public class Main {
