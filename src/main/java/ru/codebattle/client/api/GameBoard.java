@@ -259,7 +259,8 @@ public class GameBoard {
         return bool ? 1 : 0;
     }
 
-    // Novie funkcii
+
+    // Новый функционал
 
     public int[][] getWeightArray() {
         int size = size();

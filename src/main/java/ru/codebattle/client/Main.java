@@ -35,8 +35,8 @@ public class Main {
                 return step.get();
         }
 
-        return LoderunnerAction.DO_NOTHING;
-//        throw new UnsupportedOperationException();
+//        return LoderunnerAction.DO_NOTHING;
+        throw new RuntimeException("Не выполнился ни один шаг");
     }
 }
 
