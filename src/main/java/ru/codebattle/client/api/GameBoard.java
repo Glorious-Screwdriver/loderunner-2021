@@ -268,15 +268,25 @@ public class GameBoard {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i == 0 || j == 0 || j == size - 1 || i == size - 1) {
-                    result[i][j] = -1;
+                    result[j][i] = -1;
                 } else {
                     BoardElement bottomElement = getElementAt(new BoardPoint(i, j).shiftBottom());
                     BoardElement Element = getElementAt(new BoardPoint(i, j));
 
-                    result[j][i] = bottomElement.equals(BoardElement.BRICK) ||
+                    result[j][i] = (bottomElement.equals(BoardElement.BRICK) ||
                             bottomElement.equals(BoardElement.UNDESTROYABLE_WALL) ||
                             Element.equals(BoardElement.LADDER) ||
-                            bottomElement.equals(BoardElement.LADDER) ? 0 : -1;
+                            Element.equals(BoardElement.PIPE) ||
+                            Element.equals(BoardElement.HERO_PIPE_LEFT) ||
+                            Element.equals(BoardElement.HERO_PIPE_RIGHT) ||
+                            bottomElement.equals(BoardElement.LADDER) ||
+                            bottomElement.equals(BoardElement.HERO_LADDER)) &&
+                            !(Element.equals(BoardElement.UNDESTROYABLE_WALL) ||
+                                    Element.equals(BoardElement.BRICK) ||
+                                    Element.equals(BoardElement.OTHER_HERO_LEFT) ||
+                                    Element.equals(BoardElement.OTHER_HERO_RIGHT) ||
+                                    Element.equals(BoardElement.ENEMY_LEFT) ||
+                                    Element.equals(BoardElement.ENEMY_RIGHT)) ? 0 : -1;
                 }
             }
         }

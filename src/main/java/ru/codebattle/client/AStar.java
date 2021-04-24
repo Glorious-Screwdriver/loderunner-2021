@@ -1,10 +1,11 @@
 package ru.codebattle.client;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class AStar {
+class AStar {
     private final List<Node> open;
     private final List<Node> closed;
     private final List<Node> path;
@@ -59,6 +60,23 @@ public class AStar {
     public List<Node> findPathTo(int xend, int yend) {
         this.xend = xend;
         this.yend = yend;
+//        int[][] tmaze = Arrays.stream(maze).map(int[]::clone).toArray(int[][]::new);
+//        tmaze[yend][xend] = -2;
+//        for (int[] maze_row : tmaze) {
+//            for (int maze_entry : maze_row) {
+//                switch (maze_entry) {
+//                    case -2:
+//                        System.out.print("*");
+//                        break;
+//                    case -1:
+//                        System.out.print("#");
+//                        break;
+//                    default:
+//                        System.out.print(".");
+//                }
+//            }
+//            System.out.println();
+//        }
         this.closed.add(this.now);
         addNeigborsToOpenList();
         while (this.now.x != this.xend || this.now.y != this.yend) {
@@ -75,6 +93,30 @@ public class AStar {
             this.now = this.now.parent;
             this.path.add(0, this.now);
         }
+
+//        int[][] tmaze = maze.clone();
+//        List<Node> tpath = new ArrayList<>(path);
+//        tpath.forEach((n) -> {
+//            System.out.print("[" + n.x + ", " + n.y + "] ");
+//            tmaze[n.y][n.x] = -2;
+//        });
+//
+//        for (int[] maze_row : tmaze) {
+//            for (int maze_entry : maze_row) {
+//                switch (maze_entry) {
+//                    case -2:
+//                        System.out.print("*");
+//                        break;
+//                    case -1:
+//                        System.out.print("█");
+//                        break;
+//                    default:
+//                        System.out.print(".");
+//                }
+//            }
+//            System.out.println();
+//        }
+
         return this.path;
     }
 
