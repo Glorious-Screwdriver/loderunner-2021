@@ -74,7 +74,7 @@ public enum BoardElement {
     OTHER_HERO_SHADOW_DRILL_RIGHT('⋱'), // Другой герой-тень сверлит справа от себя
     OTHER_HERO_SHADOW_LEFT('⋊'),        // Другой герой-тень находится на лестнице
     OTHER_HERO_SHADOW_RIGHT('⋉'),       // Другой герой-тень бежит влево
-    OTHER_HERO_SHADOW_LADDER('⋕'),      // Другой герой-тень бежит вправо
+    OTHER_HERO_SHADOW_LADDER('⋕'),       // Другой герой-тень бежит вправо ты
     OTHER_HERO_SHADOW_FALL_LEFT('⋣'),   // Другой герой-тень падает, смотря влево
     OTHER_HERO_SHADOW_FALL_RIGHT('⋢'),  // Другой герой-тень падает, смотря вправо
     OTHER_HERO_SHADOW_PIPE_LEFT('⊣'),   // Другой герой-тень ползёт по трубе влево
