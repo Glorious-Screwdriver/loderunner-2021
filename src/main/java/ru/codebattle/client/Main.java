@@ -6,13 +6,16 @@ import ru.codebattle.client.api.GameBoard;
 import ru.codebattle.client.api.LoderunnerAction;
 
 import java.io.IOException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class Main {
     private static final String SERVER_ADDRESS = "https://dojorena.io/codenjoy-contest/board/player/dojorena378?code=6192664095630323037";
     static LoderunnerAction action = LoderunnerAction.GO_LEFT;
-    static BoardPoint previous = new BoardPoint(-1,-1);
-    static int boardSize, stopCount;
+    static int boardSize;
 
     public static void main(String[] args) throws IOException {
         ReconnectableLodeRunnerClientWrapper client = new ReconnectableLodeRunnerClientWrapper(SERVER_ADDRESS, Main::doAction);
@@ -43,8 +46,8 @@ public class Main {
 
         for(BoardPoint gold:gameBoard.getGoldPositions()){
             if(gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.BRICK)||
-            gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.UNDESTROYABLE_WALL)||
-            gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.LADDER)){
+                    gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.UNDESTROYABLE_WALL)||
+                    gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.LADDER)){
                 astar = new AStar(weightArray, position.getX(), position.getY(), false);
                 List<AStar.Node> tmp = astar.findPathTo(gold.getX(), gold.getY());
                 int distance = 300;
@@ -81,6 +84,22 @@ public class Main {
             action = LoderunnerAction.SUICIDE;
         }
         return action;
+
+        Steps steps = new Steps(gameBoard);
+
+        ArrayList<Optional<LoderunnerAction>> stepList = new ArrayList<>(Arrays.asList(
+                steps.avoidEnemies(),
+                steps.avoidPlayers(),
+                steps.findGold()
+        ));
+
+        for (Optional<LoderunnerAction> step : stepList) {
+            if (step.isPresent())
+                return step.get();
+        }
+
+        return LoderunnerAction.DO_NOTHING;
+//        throw new UnsupportedOperationException();
     }
 }
 
