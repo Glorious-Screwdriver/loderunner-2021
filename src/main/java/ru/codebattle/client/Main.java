@@ -5,7 +5,6 @@ import ru.codebattle.client.api.GameBoard;
 import ru.codebattle.client.api.LoderunnerAction;
 
 import java.io.IOException;
-
 import java.util.List;
 
 public class Main {
@@ -24,8 +23,27 @@ public class Main {
         boardSize = gameBoard.size();
         BoardPoint position = gameBoard.getMyPosition();
         int[][] weightArray = gameBoard.getWeightArray();
-        AStar astar= new AStar(weightArray, position.getX(), position.getY(), false);
-        List<AStar.Node> path = astar.findPathTo(20,20);
+        AStar astar = new AStar(weightArray, position.getX(), position.getY(), false);
+        List<AStar.Node> path = astar.findPathTo(28, 28);
+        if (path != null && !path.isEmpty()) {
+            AStar.Node nextNode = path.get(1);
+            if (position.getX() == nextNode.x) {
+                if (position.getY() > nextNode.y) {
+                    action = LoderunnerAction.GO_UP;
+                } else {
+                    action = LoderunnerAction.GO_DOWN;
+                }
+            } else {
+                if (position.getX() > nextNode.x) {
+                    action = LoderunnerAction.GO_LEFT;
+                } else {
+                    action = LoderunnerAction.GO_RIGHT;
+                }
+            }
+        } else {
+            action = LoderunnerAction.DO_NOTHING;
+        }
+
 //        if (path != null) {
 //            path.forEach((n) -> {
 //                System.out.print("[" + n.x + ", " + n.y + "] ");
@@ -49,7 +67,7 @@ public class Main {
 //                System.out.println();
 //            }
 //        }
-        return LoderunnerAction.DO_NOTHING;
+        return action;
     }
 }
 

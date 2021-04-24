@@ -60,7 +60,7 @@ public class GameBoard {
 
     public void printBoard() {
         for (int i = 0; i < size(); i++) {
-            System.out.println(boardString.substring(i * size(), size() * (i+1)));
+            System.out.println(boardString.substring(i * size(), size() * (i + 1)));
         }
     }
 
@@ -210,7 +210,7 @@ public class GameBoard {
         return getPortals().contains(point);
     }
 
-    public boolean hasBarrierAt(BoardPoint point){
+    public boolean hasBarrierAt(BoardPoint point) {
         return getBarriers().contains(point);
     }
 
@@ -267,14 +267,16 @@ public class GameBoard {
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if(i==0||j==0||j==size-1||i==size-1){
-                    result[i][j]=-1;
-                }else {
-                    BoardElement bottomElement = getElementAt(new BoardPoint(i, j - 1));
+                if (i == 0 || j == 0 || j == size - 1 || i == size - 1) {
+                    result[i][j] = -1;
+                } else {
+                    BoardElement bottomElement = getElementAt(new BoardPoint(i, j).shiftBottom());
                     BoardElement Element = getElementAt(new BoardPoint(i, j));
-                    result[i][j] = bottomElement.equals(BoardElement.BRICK) ||
+
+                    result[j][i] = bottomElement.equals(BoardElement.BRICK) ||
                             bottomElement.equals(BoardElement.UNDESTROYABLE_WALL) ||
-                            Element.equals(BoardElement.LADDER) ? 0 : -1;
+                            Element.equals(BoardElement.LADDER) ||
+                            bottomElement.equals(BoardElement.LADDER) ? 0 : -1;
                 }
             }
         }
