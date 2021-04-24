@@ -2,12 +2,13 @@ package ru.codebattle.client.api;
 
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GameBoardTest {
 
@@ -38,7 +39,7 @@ public class GameBoardTest {
 
         for (int i = 0; i < length; i++) {
             for (int j = 0; j < length; j++) {
-                switch (maze[j][i]) {
+                switch (maze[i][j]) {
                     case 0:
                         result.append("_");
                         break;
@@ -47,7 +48,7 @@ public class GameBoardTest {
                         break;
                 }
             }
-            result.append("\n");
+            result.append(i == length - 1 ? "" : "\n");
         }
 
         assertEquals(grid_after, result.toString());
