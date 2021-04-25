@@ -10,14 +10,12 @@ import java.util.Optional;
 
 public class Steps {
     GameBoard gameBoard;
-
-    int size;
     BoardPoint position;
     int[][] weightArray;
 
     public Steps(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
-        size=gameBoard.size();
+
         position = gameBoard.getMyPosition();
         weightArray = gameBoard.getWeightArray();
     }
@@ -31,21 +29,20 @@ public class Steps {
     }
 
     public Optional<LoderunnerAction> findGold() {
-        LoderunnerAction action;
-        AStar astar = new AStar(weightArray, position.getX(), position.getY(), false);
-        int minDistance = size;
-        List<AStar.Node> path = astar.findPathTo(position.getX() + 1, position.getY());
+        int minDistance = 300;
+
+        AStar aStar = new AStar(weightArray, position.getX(), position.getY(), false);
+        List<AStar.Node> path = aStar.findPathTo(position.getX() + 1, position.getY());
 
         for (BoardPoint gold : gameBoard.getGoldPositions()) {
-            if (gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.BRICK) ||
-                    gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.UNDESTROYABLE_WALL) ||
-                    gameBoard.getElementAt(gold.shiftBottom()).equals(BoardElement.LADDER)) {
-                astar = new AStar(weightArray, position.getX(), position.getY(), false);
-                List<AStar.Node> tmp = astar.findPathTo(gold.getX(), gold.getY());
-                int distance = size*2;
-                if (tmp != null) {
-                    distance = tmp.size();
-                }
+            BoardElement elementUnderGold = gameBoard.getElementAt(gold.shiftBottom());
+            if (elementUnderGold.equals(BoardElement.BRICK) ||
+                    elementUnderGold.equals(BoardElement.UNDESTROYABLE_WALL) ||
+                    elementUnderGold.equals(BoardElement.LADDER)) {
+                aStar = new AStar(weightArray, position.getX(), position.getY(), false);
+                List<AStar.Node> tmp = aStar.findPathTo(gold.getX(), gold.getY());
+                int distance = 300;
+                if (tmp != null) distance = tmp.size();
                 if (minDistance > distance) {
                     minDistance = distance;
                     path = tmp;
@@ -53,20 +50,13 @@ public class Steps {
             }
         }
 
+        LoderunnerAction action;
         if (path != null && !path.isEmpty()) {
             AStar.Node nextNode = path.get(1);
             if (position.getX() == nextNode.x) {
-                if (position.getY() > nextNode.y) {
-                    action = LoderunnerAction.GO_UP;
-                } else {
-                    action = LoderunnerAction.GO_DOWN;
-                }
+                action = position.getY() > nextNode.y ? LoderunnerAction.GO_UP : LoderunnerAction.GO_DOWN;
             } else {
-                if (position.getX() > nextNode.x) {
-                    action = LoderunnerAction.GO_LEFT;
-                } else {
-                    action = LoderunnerAction.GO_RIGHT;
-                }
+                action = position.getX() > nextNode.x ? LoderunnerAction.GO_LEFT : LoderunnerAction.GO_RIGHT;
             }
         } else {
             action = LoderunnerAction.DO_NOTHING;
