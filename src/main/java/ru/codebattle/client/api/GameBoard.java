@@ -351,7 +351,8 @@ public class GameBoard {
                             element.equals(BoardElement.HERO_PIPE_LEFT)||
                             element.equals(BoardElement.HERO_PIPE_RIGHT);
 
-                    result[j][i] = (above && (hasFloor) || (!above) && (isWalkable || hasFloor || (hasFloorL && onTheR) || (hasFloorR&&onTheL))||(hasGoldAt(boardPoint)&&(hasFloorR||hasFloorL)) ) &&
+                    result[j][i] = (above && (hasFloor) || (!above) && (isWalkable || hasFloor || (hasFloorL && onTheR)
+                            || (hasFloorR&&onTheL)||(hasGoldAt(boardPoint)&&(hasFloorR||hasFloorL))) ) &&
                             !(multiCheck(avoid, element) || (!underPills) && (hasEnemyAt(boardPoint) ||
                                     hasOtherHeroAt(boardPoint, true))) ? 0 : -1;
 
