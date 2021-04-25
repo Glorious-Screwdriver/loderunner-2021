@@ -335,9 +335,6 @@ public class GameBoard {
                     BoardPoint boardPoint = new BoardPoint(i, j);
                     BoardElement element = getElementAt(boardPoint);
 
-                    List<BoardElement> walkable = Arrays.asList(
-
-                    );
                     List<BoardElement> avoid = Arrays.asList(
                             BoardElement.UNDESTROYABLE_WALL,
                             BoardElement.BRICK,
@@ -352,9 +349,9 @@ public class GameBoard {
                     boolean isWalkable = element.equals(BoardElement.LADDER)||
                             (element.equals(BoardElement.PIPE)&&((hasFloorL&&onTheR)||(hasFloorR&&onTheL)))||
                             element.equals(BoardElement.HERO_PIPE_LEFT)||
-                            element.equals(BoardElement.HERO_PIPE_RIGHT)||(hasGoldAt(boardPoint)&&(hasFloorR||hasFloorL||hasFloor));
+                            element.equals(BoardElement.HERO_PIPE_RIGHT);
 
-                    result[j][i] = (above && (hasFloor) || (!above) && (isWalkable || hasFloor || (hasFloorL && onTheR) || (hasFloorR&&onTheL)) ) &&
+                    result[j][i] = (above && (hasFloor) || (!above) && (isWalkable || hasFloor || (hasFloorL && onTheR) || (hasFloorR&&onTheL))||(hasGoldAt(boardPoint)&&(hasFloorR||hasFloorL)) ) &&
                             !(multiCheck(avoid, element) || (!underPills) && (hasEnemyAt(boardPoint) ||
                                     hasOtherHeroAt(boardPoint, true))) ? 0 : -1;
 
