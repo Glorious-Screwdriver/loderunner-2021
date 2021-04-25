@@ -59,10 +59,12 @@ public class Main {
             BoardPoint posLL = position.shiftLeft().shiftLeft();
             BoardElement elementL = gameBoard.getElementAt(posL);
             BoardElement elementLL = gameBoard.getElementAt(posLL);
-            if (elementL.equals(BoardElement.BRICK) &&(
+            if (elementL.equals(BoardElement.BRICK) && (
                     elementLL.equals(BoardElement.ENEMY_RIGHT) ||
                     elementLL.equals(BoardElement.ENEMY_PIPE_RIGHT) ||
-                    elementLL.equals(BoardElement.ENEMY_LADDER)))
+                    elementLL.equals(BoardElement.ENEMY_LADDER) ||
+                    elementLL.equals(BoardElement.OTHER_HERO_RIGHT) ||
+                    elementLL.equals(BoardElement.OTHER_HERO_LEFT)))
             return Optional.of(LoderunnerAction.DRILL_LEFT);
 
             BoardPoint posR = position.shiftRight().shiftBottom();
@@ -72,7 +74,9 @@ public class Main {
             if (elementR.equals(BoardElement.BRICK) &&(
                     elementRR.equals(BoardElement.ENEMY_LEFT) ||
                     elementRR.equals(BoardElement.ENEMY_PIPE_LEFT) ||
-                    elementRR.equals(BoardElement.ENEMY_LADDER)))
+                    elementRR.equals(BoardElement.ENEMY_LADDER) ||
+                    elementLL.equals(BoardElement.OTHER_HERO_RIGHT) ||
+                    elementLL.equals(BoardElement.OTHER_HERO_LEFT)))
                 return Optional.of(LoderunnerAction.DRILL_RIGHT);
             return Optional.empty();
         }
