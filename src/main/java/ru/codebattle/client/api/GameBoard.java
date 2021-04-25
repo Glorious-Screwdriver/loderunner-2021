@@ -349,10 +349,9 @@ public class GameBoard {
                     BoardElement elR = getElementAt(boardPoint.shiftRight());
                     BoardElement elL = getElementAt(boardPoint.shiftLeft());
                     boolean isWalkable = element.equals(BoardElement.LADDER)||
-                            ((element.equals(BoardElement.PIPE)||
+                            element.equals(BoardElement.PIPE)||
                             element.equals(BoardElement.HERO_PIPE_LEFT)||
-                            element.equals(BoardElement.HERO_PIPE_RIGHT))&&((hasFloorL&&onTheL)||(hasFloorR&&onTheR)||
-                                    elR.equals(BoardElement.PIPE)||elL.equals(BoardElement.PIPE)));
+                            element.equals(BoardElement.HERO_PIPE_RIGHT);
 
                     result[j][i] = (above && (hasFloor) || (!above) && (isWalkable || hasFloor || (hasFloorL && onTheR)
                             || (hasFloorR&&onTheL)||(hasGoldAt(boardPoint)&&(hasFloorR||hasFloorL))) ) &&
