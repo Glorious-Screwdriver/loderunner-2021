@@ -2,6 +2,7 @@ package ru.codebattle.client.api;
 
 import lombok.Getter;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +11,8 @@ public class GameBoard {
 
     @Getter
     private final String boardString;
-    private boolean underPills;
-    private BoardPoint myPosition;
+    public boolean underPills;
+    private final BoardPoint myPosition;
 
     public GameBoard(String boardString) {
         this.boardString = boardString.replace("\n", "");
@@ -157,9 +158,18 @@ public class GameBoard {
     }
 
     public List<BoardPoint> getGoldPositions() {
-        List<BoardPoint> result = findAllElements(BoardElement.YELLOW_GOLD);
-        result.addAll(findAllElements(BoardElement.GREEN_GOLD));
-        result.addAll(findAllElements(BoardElement.RED_GOLD));
+        List<BoardPoint> result = new ArrayList<>();
+        for (int i = 0; i < size() * size(); i++) {
+            BoardPoint pt = getPointByShift(i);
+            BoardElement el = getElementAt(pt);
+            List<BoardElement> golds = Arrays.asList(
+                    BoardElement.YELLOW_GOLD,
+                    BoardElement.GREEN_GOLD,
+            BoardElement.RED_GOLD);
+            if(multiCheck(golds,el)){
+                result.add(pt);
+            }
+        }
         return result;
     }
 
@@ -212,7 +222,7 @@ public class GameBoard {
 
     public boolean hasOtherHeroAt(BoardPoint point, boolean needShadow) {
         BoardElement element = getElementAt(point);
-        return element.equals(BoardElement.OTHER_HERO_LEFT) ||
+        return !needShadow ? (element.equals(BoardElement.OTHER_HERO_LEFT) ||
                 element.equals(BoardElement.OTHER_HERO_RIGHT) ||
                 element.equals(BoardElement.OTHER_HERO_LADDER) ||
                 element.equals(BoardElement.OTHER_HERO_PIPE_LEFT) ||
@@ -220,17 +230,17 @@ public class GameBoard {
                 element.equals(BoardElement.OTHER_HERO_DRILL_LEFT) ||
                 element.equals(BoardElement.OTHER_HERO_DRILL_RIGHT) ||
                 element.equals(BoardElement.OTHER_HERO_FALL_LEFT) ||
-                element.equals(BoardElement.OTHER_HERO_FALL_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_FALL_RIGHT))
 
-                needShadow && (element.equals(BoardElement.OTHER_HERO_SHADOW_LEFT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_RIGHT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_LADDER) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_PIPE_LEFT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_PIPE_RIGHT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_DRILL_LEFT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_DRILL_RIGHT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_FALL_LEFT) ||
-                        element.equals(BoardElement.OTHER_HERO_SHADOW_FALL_RIGHT));
+                : (element.equals(BoardElement.OTHER_HERO_SHADOW_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_LADDER) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_PIPE_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_PIPE_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_DRILL_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_DRILL_RIGHT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_FALL_LEFT) ||
+                element.equals(BoardElement.OTHER_HERO_SHADOW_FALL_RIGHT));
     }
 
     public boolean hasWallAt(BoardPoint point) {
@@ -322,36 +332,41 @@ public class GameBoard {
                     result[j][i] = -1;
                 } else {
                     boolean above = j < myPosition.getY();
-                BoardPoint boardPoint = new BoardPoint(i, j);
-                BoardElement element = getElementAt(boardPoint);
+                    BoardPoint boardPoint = new BoardPoint(i, j);
+                    BoardElement element = getElementAt(boardPoint);
 
-                List<BoardElement> walkable = Arrays.asList(
-                        BoardElement.LADDER,
-                        BoardElement.PIPE,
-                        BoardElement.HERO_PIPE_LEFT,
-                        BoardElement.HERO_PIPE_RIGHT
-                );
-                List<BoardElement> avoid = Arrays.asList(
-                        BoardElement.UNDESTROYABLE_WALL,
-                        BoardElement.BRICK,
-                        BoardElement.PORTAL
-                );
-                boolean hasFloor = hasFloor(boardPoint);
-                boolean isWalkable = multiCheck(walkable, element);
+                    List<BoardElement> walkable = Arrays.asList(
 
-                result[j][i] = (above && hasFloor||(!above)&&(isWalkable||hasFloor)) &&
-                        !(multiCheck(avoid, element) || (!underPills) && (hasEnemyAt(boardPoint) ||
-                                hasOtherHeroAt(boardPoint, true))) ? 0 : -1;
+                    );
+                    List<BoardElement> avoid = Arrays.asList(
+                            BoardElement.UNDESTROYABLE_WALL,
+                            BoardElement.BRICK,
+                            BoardElement.PORTAL
+                    );
 
-//                    if (element.equals(BoardElement.SHADOW_PILL) || hasGoldAt(boardPoint)) {
-//                        result[j][i] = 0;
-//                    }
+                    boolean onTheL=i<=myPosition.getX();
+                    boolean onTheR=i>myPosition.getX();
+                    boolean hasFloorL= hasFloor(boardPoint.shiftLeft());
+                    boolean hasFloorR= hasFloor(boardPoint.shiftRight());
+                    boolean hasFloor = hasFloor(boardPoint);
+                    boolean isWalkable = element.equals(BoardElement.LADDER)||
+                            (element.equals(BoardElement.PIPE)&&((hasFloorL&&onTheR)||(hasFloorR&&onTheL)))||
+                            element.equals(BoardElement.HERO_PIPE_LEFT)||
+                            element.equals(BoardElement.HERO_PIPE_RIGHT)||(hasGoldAt(boardPoint)&&(hasFloorR||hasFloorL||hasFloor));
+
+                    result[j][i] = (above && (hasFloor) || (!above) && (isWalkable || hasFloor || (hasFloorL && onTheR) || (hasFloorR&&onTheL)) ) &&
+                            !(multiCheck(avoid, element) || (!underPills) && (hasEnemyAt(boardPoint) ||
+                                    hasOtherHeroAt(boardPoint, true))) ? 0 : -1;
+
+                    if (element.equals(BoardElement.PORTAL)&&hasFloor || hasOtherHeroAt(boardPoint, false)) {
+                        result[j][i] = 300;
+                    }
+                }
             }
         }
-    }
 
         return result;
-}
+    }
 
     private boolean hasFloor(BoardPoint point) {
         BoardPoint pointBeneath = point.shiftBottom();
@@ -360,8 +375,7 @@ public class GameBoard {
                 elementBeneath.equals(BoardElement.UNDESTROYABLE_WALL) ||
                 elementBeneath.equals(BoardElement.LADDER) ||
                 elementBeneath.equals(BoardElement.HERO_LADDER) ||
-                hasEnemyAt(pointBeneath) ||
-                hasOtherHeroAt(pointBeneath, false);
+                elementBeneath.equals(BoardElement.HERO_SHADOW_LADDER);
     }
 
     private boolean multiCheck(List<BoardElement> list, BoardElement element) {
