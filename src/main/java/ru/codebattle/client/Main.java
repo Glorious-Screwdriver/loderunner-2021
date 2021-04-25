@@ -75,8 +75,8 @@ public class Main {
                     elementRR.equals(BoardElement.ENEMY_LEFT) ||
                     elementRR.equals(BoardElement.ENEMY_PIPE_LEFT) ||
                     elementRR.equals(BoardElement.ENEMY_LADDER) ||
-                    elementLL.equals(BoardElement.OTHER_HERO_RIGHT) ||
-                    elementLL.equals(BoardElement.OTHER_HERO_LEFT)))
+                    elementRR.equals(BoardElement.OTHER_HERO_RIGHT) ||
+                    elementRR.equals(BoardElement.OTHER_HERO_LEFT)))
                 return Optional.of(LoderunnerAction.DRILL_RIGHT);
             return Optional.empty();
         }
@@ -131,15 +131,16 @@ public class Main {
                     action = position.getX() > nextNode.x ? LoderunnerAction.GO_LEFT : LoderunnerAction.GO_RIGHT;
                 }
             } else {
+                System.out.println("alt");
                 int x = position.getX();
                 int y = position.getY();
-                if (weightArray[y][x + 1] == 0) {
+                if (weightArray[y][x+1] == 0) {
                     action = LoderunnerAction.GO_RIGHT;
-                } else if (weightArray[y][x - 1] == 0) {
+                } else if (weightArray[y-1][x] == 0) {
+                    action = LoderunnerAction.GO_UP;
+                }else if(weightArray[y][x-1]==0){
                     action = LoderunnerAction.GO_LEFT;
                 } else if (weightArray[y+1][x]==0){
-                    action = LoderunnerAction.GO_UP;
-                }else if(weightArray[y-1][x]==0){
                     action = LoderunnerAction.GO_DOWN;
                 }else {
                     action = LoderunnerAction.DO_NOTHING;
