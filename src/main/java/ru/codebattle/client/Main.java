@@ -1,5 +1,6 @@
 package ru.codebattle.client;
 
+import ru.codebattle.client.api.BoardElement;
 import ru.codebattle.client.api.BoardPoint;
 import ru.codebattle.client.api.GameBoard;
 import ru.codebattle.client.api.LoderunnerAction;
@@ -12,8 +13,8 @@ import java.util.Optional;
 
 public class Main {
     private static final String SERVER_ADDRESS = "https://dojorena.io/codenjoy-contest/board/player/dojorena378?code=6192664095630323037";
-    static BoardPoint pPos = new BoardPoint(-1,-1);
-    static int repeat=0;
+    static BoardPoint pPos = new BoardPoint(-1, -1);
+    static int repeat = 0;
     static int repeatTresh = 10;
     static boolean retreat = false;
 
@@ -29,7 +30,6 @@ public class Main {
 
         ArrayList<Optional<LoderunnerAction>> stepList = new ArrayList<>(Arrays.asList(
                 steps.avoidEnemies(),
-                steps.avoidPlayers(),
                 steps.findGold()
         ));
 
@@ -55,40 +55,55 @@ public class Main {
         }
 
         public Optional<LoderunnerAction> avoidEnemies() {
-            return Optional.empty();
-        }
+            BoardPoint posL = position.shiftLeft().shiftBottom();
+            BoardPoint posLL = position.shiftLeft().shiftLeft();
+            BoardElement elementL = gameBoard.getElementAt(posL);
+            BoardElement elementLL = gameBoard.getElementAt(posLL);
+            if (elementL.equals(BoardElement.BRICK) &&(
+                    elementLL.equals(BoardElement.ENEMY_RIGHT) ||
+                    elementLL.equals(BoardElement.ENEMY_PIPE_RIGHT) ||
+                    elementLL.equals(BoardElement.ENEMY_LADDER)))
+            return Optional.of(LoderunnerAction.DRILL_LEFT);
 
-        public Optional<LoderunnerAction> avoidPlayers() {
+            BoardPoint posR = position.shiftRight().shiftBottom();
+            BoardPoint posRR = position.shiftRight().shiftRight();
+            BoardElement elementR = gameBoard.getElementAt(posR);
+            BoardElement elementRR = gameBoard.getElementAt(posRR);
+            if (elementR.equals(BoardElement.BRICK) &&(
+                    elementRR.equals(BoardElement.ENEMY_LEFT) ||
+                    elementRR.equals(BoardElement.ENEMY_PIPE_LEFT) ||
+                    elementRR.equals(BoardElement.ENEMY_LADDER)))
+                return Optional.of(LoderunnerAction.DRILL_RIGHT);
             return Optional.empty();
         }
 
         public Optional<LoderunnerAction> findGold() {
             int minDistance = 300;
-            if(retreat){
+            if (retreat) {
                 repeat--;
-                if(repeat==0) {
+                if (repeat == 0) {
                     retreat = false;
                 }
             }
-            if(pPos.equals(position)){
-                if(!retreat){
+            if (pPos.equals(position)) {
+                if (!retreat) {
                     repeat++;
                 }
-                if(repeatTresh<=repeat) {
+                if (repeatTresh <= repeat) {
                     retreat = true;
                 }
             }
-            System.out.println(retreat?"retreat":"atac");
+            System.out.println(retreat ? "retreat" : "atac");
             pPos = position;
             AStar aStar;
             List<AStar.Node> path = new ArrayList<>();
             List<BoardPoint> targets;
-            if(!retreat) {
-                 targets = gameBoard.getGoldPositions();
+            if (!retreat) {
+                targets = gameBoard.getGoldPositions();
                 if (!gameBoard.underPills) {
                     targets.addAll(gameBoard.getShadowPills());
                 }
-            }else{
+            } else {
                 targets = gameBoard.getPortals();
             }
             for (BoardPoint gold : targets) {
@@ -112,7 +127,19 @@ public class Main {
                     action = position.getX() > nextNode.x ? LoderunnerAction.GO_LEFT : LoderunnerAction.GO_RIGHT;
                 }
             } else {
-                action = LoderunnerAction.DO_NOTHING;
+                int x = position.getX();
+                int y = position.getY();
+                if (weightArray[y][x + 1] == 0) {
+                    action = LoderunnerAction.GO_RIGHT;
+                } else if (weightArray[y][x - 1] == 0) {
+                    action = LoderunnerAction.GO_LEFT;
+                } else if (weightArray[y+1][x]==0){
+                    action = LoderunnerAction.GO_UP;
+                }else if(weightArray[y-1][x]==0){
+                    action = LoderunnerAction.GO_DOWN;
+                }else {
+                    action = LoderunnerAction.DO_NOTHING;
+                }
             }
 
             return Optional.of(action);
